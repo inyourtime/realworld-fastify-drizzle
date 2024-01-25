@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { ApiRequest } from '../../declarations/api';
 import { TUserCreateSchema, TUserLoginSchema } from './user.schema';
 import { createUser, userByEmail, userResponse } from './user.service';
-import { checkPassword, hashPassword } from '../../utils/bcrypt';
+import { checkHash, makeHash } from '../../utils/hash';
 
 type CreateUserApi = ApiRequest<{ Body: TUserCreateSchema }>;
 export async function register(
@@ -10,7 +10,7 @@ export async function register(
   reply: FastifyReply,
 ) {
   try {
-    const hash = await hashPassword(request.body.password);
+    const hash = await makeHash(request.body.password);
     const user = await createUser({ ...request.body, password: hash });
     return {
       user: userResponse(user, { token: true }),
@@ -30,7 +30,7 @@ export async function login(
   const user = await userByEmail(email);
   if (!user) throw new Error('Email or password are incorrect');
 
-  const match = await checkPassword(password, user.password);
+  const match = await checkHash(password, user.password);
   if (!match) throw new Error('Email or password are incorrect');
 
   return {
