@@ -1,10 +1,10 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { TApiRequest } from '../../declarations/api';
+import { ApiRequest } from '../../declarations/api';
 import { TUserCreateSchema, TUserLoginSchema } from './user.schema';
 import { createUser, userByEmail, userResponse } from './user.service';
 import { checkPassword, hashPassword } from '../../utils/bcrypt';
 
-type CreateUserApi = TApiRequest<{ Body: TUserCreateSchema }>;
+type CreateUserApi = ApiRequest<{ Body: TUserCreateSchema }>;
 export async function register(
   request: FastifyRequest<CreateUserApi>,
   reply: FastifyReply,
@@ -20,7 +20,7 @@ export async function register(
   }
 }
 
-type LoginUserApi = TApiRequest<{ Body: TUserLoginSchema }>;
+type LoginUserApi = ApiRequest<{ Body: TUserLoginSchema }>;
 export async function login(
   request: FastifyRequest<LoginUserApi>,
   reply: FastifyReply,
