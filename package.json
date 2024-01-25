@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/index.ts",
+    "dev": "NODE_ENV=development nodemon src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "format:check": "prettier . --check --config .prettierrc",
