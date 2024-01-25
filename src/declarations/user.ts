@@ -14,3 +14,12 @@ export type TBaseUserResponse = Pick<
 export interface IUserResponse extends TBaseUserResponse {
   token?: string;
 }
+
+export interface IUserResponseOptions {
+  token: boolean;
+}
+
+export interface IUserClaims {
+  userId: string;
+  email: string;
+}

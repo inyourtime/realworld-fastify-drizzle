@@ -3,10 +3,11 @@ import { db } from '../../db';
 import { users } from '../../db/schema';
 import {
   IUserResponse,
+  IUserResponseOptions,
   TCreateUser,
   TSelectUser,
-  TUserLogin,
 } from '../../declarations/user';
+import { generateAccessToken } from '../../utils/token';
 
 export async function createUser(data: TCreateUser) {
   return db
@@ -16,25 +17,30 @@ export async function createUser(data: TCreateUser) {
     .then((rs) => rs[0]);
 }
 
-export async function loginUser({ email, password }: TUserLogin) {
-  return db.query.users
-    .findFirst({ where: eq(users.email, email) })
-    .then((usr) => {
-      if (!usr) throw new Error('user not found');
-      return usr;
-    });
+export async function userByEmail(email: string) {
+  return db.query.users.findFirst({ where: eq(users.email, email) });
 }
 
 export async function getUser(id: string) {
   return db.query.users.findFirst({ where: eq(users.id, id) });
 }
 
-export function userResponse(user: TSelectUser, token?: string): IUserResponse {
+export function userResponse(
+  user: TSelectUser,
+  options?: IUserResponseOptions | undefined,
+): IUserResponse {
+  const _options = Object.assign(
+    {},
+    <IUserResponseOptions>{ token: false },
+    options,
+  );
   return {
     email: user.email,
     username: user.username,
     bio: user.bio,
     image: user.image,
-    token,
+    token: _options.token
+      ? generateAccessToken({ userId: user.id, email: user.email })
+      : undefined,
   };
 }
