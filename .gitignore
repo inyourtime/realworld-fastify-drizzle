@@ -1,0 +1,16 @@
+node_modules
+configs
+yarn.lock
+# *.sh
+.DS_Store
+dist
+*.log
+# package-lock.json
+yarn-error.log
+
+*.http
+
+*.env
+*.env.test
+
+coverage
