@@ -1,0 +1,11 @@
+.git
+.gitignore
+node_modules
+configs
+*.env
+package-lock.json
+manifests
+README.md
+public
+Dockerfile
+docker-compose.yml

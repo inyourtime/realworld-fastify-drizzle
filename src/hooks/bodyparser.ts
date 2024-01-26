@@ -37,7 +37,7 @@ export default fp<BodyParserPluginOptions>(
     fastify.addHook(
       'preValidation',
       async (request: FastifyRequest, reply: FastifyReply) => {
-        if (isFormdataFromBodyParser(request.body)) {
+        if (request.body && isFormdataFromBodyParser(request.body)) {
           request.body = convertFormdataToObject(request.body);
         }
       },

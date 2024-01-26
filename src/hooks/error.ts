@@ -17,10 +17,8 @@ export default fp<ErrorPluginOptions>(
         reply: FastifyReply,
         error: FastifyError,
       ) => {
-        // fastify.log.error(error);
         if (error instanceof Exception) return;
-
-        console.log(1245);
+        console.log('from error hook');
       },
     );
   },
