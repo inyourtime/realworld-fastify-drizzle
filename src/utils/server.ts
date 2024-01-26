@@ -5,6 +5,7 @@ import zodValidation from './validator';
 import userRoutes from '../modules/users/user.route';
 import { envToLogger } from './logger';
 import errorHook from '../hooks/error';
+import authenticateHook from '../hooks/authenticate';
 
 const API_PREFIX = 'api';
 
@@ -40,13 +41,14 @@ export async function buildServer() {
   /* 
     Register all your plugins on this.
   */
+  app.register(authenticateHook);
   app.register(errorHook);
 
   /*
     Register all your api routes on this.
     base prefix is /api was declare in API_PREFIX.
   */
-  app.get('/', (req, res) => 'hello');
+  app.get('/', { config: { auth: false } }, (req, res) => 'hello');
   app.register(userRoutes, { prefix: API_PREFIX });
 
   return app;

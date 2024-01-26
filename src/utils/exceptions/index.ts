@@ -3,7 +3,7 @@ export default class Exception extends Error {
     super(message);
   }
 
-  static New(message: string, statusCode: number) {
+  static new(message: string, statusCode: number) {
     return new Exception(message, statusCode);
   }
 }

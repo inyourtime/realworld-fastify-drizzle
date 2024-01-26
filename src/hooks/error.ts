@@ -1,6 +1,6 @@
 import { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
-import Exception from '../utils/exception';
+import Exception from '../utils/exceptions';
 
 export interface ErrorPluginOptions {
   // Specify Support plugin options here

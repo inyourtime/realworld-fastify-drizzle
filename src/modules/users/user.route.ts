@@ -7,13 +7,13 @@ export default async function userRoutes(app: FastifyInstance) {
 
   app.post(
     `${apiModule}`,
-    { schema: { body: userCreateSchema } },
+    { config: { auth: false }, schema: { body: userCreateSchema } },
     handler.register,
   );
 
   app.post(
     `${apiModule}/login`,
-    { schema: { body: userLoginSchema } },
+    { config: { auth: false }, schema: { body: userLoginSchema } },
     handler.login,
   );
 }
