@@ -10,7 +10,8 @@
     "format:check": "prettier . --check --config .prettierrc",
     "format:all": "prettier . --write",
     "migrate": "drizzle-kit generate:pg",
-    "dz": "drizzle-kit studio"
+    "dz": "drizzle-kit studio",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",

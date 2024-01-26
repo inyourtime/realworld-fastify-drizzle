@@ -1,0 +1,28 @@
+import { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
+import fp from 'fastify-plugin';
+import Exception from '../utils/exception';
+
+export interface ErrorPluginOptions {
+  // Specify Support plugin options here
+}
+
+// The use of fastify-plugin is required to be able
+// to export the decorators to the outer scope
+export default fp<ErrorPluginOptions>(async (fastify, opts) => {
+  fastify.addHook(
+    'onError',
+    async (
+      request: FastifyRequest,
+      reply: FastifyReply,
+      error: FastifyError,
+    ) => {
+      // fastify.log.error(error);
+      if (error instanceof Exception) return;
+
+      console.log(1245);
+    },
+  );
+});
+
+// When using .decorate you have to specify added properties for Typescript
+declare module 'fastify' {}

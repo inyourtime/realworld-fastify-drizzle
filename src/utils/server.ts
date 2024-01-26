@@ -3,6 +3,8 @@ import cors from '@fastify/cors';
 import fastifyMultipart from '@fastify/multipart';
 import zodValidation from './validator';
 import userRoutes from '../modules/users/user.route';
+import { envToLogger } from './logger';
+import errorHook from '../hooks/error';
 
 const API_PREFIX = 'api';
 
@@ -12,7 +14,7 @@ export async function buildServer() {
     - you can custom logging for some environment such development.
   */
   const app = Fastify({
-    logger: true,
+    logger: envToLogger[process.env.NODE_ENV ?? 'development'] ?? true,
   });
 
   /*
@@ -38,12 +40,13 @@ export async function buildServer() {
   /* 
     Register all your plugins on this.
   */
+  app.register(errorHook);
 
   /*
     Register all your api routes on this.
     base prefix is /api was declare in API_PREFIX.
   */
-  app.get('/', () => 'hello');
+  app.get('/', (req, res) => 'hello');
   app.register(userRoutes, { prefix: API_PREFIX });
 
   return app;
