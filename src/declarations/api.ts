@@ -1,6 +1,6 @@
-import { RequestGenericInterface } from 'fastify';
+import { RouteGenericInterface } from 'fastify';
 
-export type ApiRequest<T extends RequestGenericInterface> = {
+export type ApiRequest<T extends RouteGenericInterface> = {
   [P in keyof T]: T[P];
 };
 

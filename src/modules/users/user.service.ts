@@ -14,7 +14,7 @@ export async function createUser(data: TCreateUser) {
     .insert(users)
     .values({ ...data })
     .returning()
-    .then((rs) => rs[0]);
+    .then(([user]) => user);
 }
 
 export async function userByEmail(email: string) {
@@ -23,6 +23,15 @@ export async function userByEmail(email: string) {
 
 export async function getUser(id: string) {
   return db.query.users.findFirst({ where: eq(users.id, id) });
+}
+
+export async function updateUser(data: TSelectUser) {
+  return db
+    .update(users)
+    .set({ ...data })
+    .where(eq(users.id, data.id))
+    .returning()
+    .then(([user]) => user);
 }
 
 export function userResponse(

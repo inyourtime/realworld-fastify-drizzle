@@ -1,7 +1,17 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { ApiRequest } from '../../declarations/api';
-import { TUserCreateSchema, TUserLoginSchema } from './user.schema';
-import { createUser, getUser, userByEmail, userResponse } from './user.service';
+import { ApiRequest, IAnyObject } from '../../declarations/api';
+import {
+  TUserCreateSchema,
+  TUserLoginSchema,
+  TUserUpdateSchema,
+} from './user.schema';
+import {
+  createUser,
+  getUser,
+  updateUser,
+  userByEmail,
+  userResponse,
+} from './user.service';
 import { checkHash, makeHash } from '../../utils/hash';
 import {
   Err401LoginFail,
@@ -64,8 +74,40 @@ export async function getCurrentUser(
   };
 }
 
-export async function updateUser(request: FastifyRequest, reply: FastifyReply) {
-  // console.log(request.parts())
-  console.log(request.body);
-  return 'sd';
+type UpdateUserApi = ApiRequest<{ Body: TUserUpdateSchema }>;
+export async function updateCurrentUser(
+  request: FastifyRequest<UpdateUserApi>,
+  reply: FastifyReply,
+): Promise<UserResponseApi> {
+  const { userId } = request.auth!;
+  const { user, image } = request.body;
+
+  const target = await getUser(userId);
+  if (!target) throw Err404UserNotFound;
+
+  for (const [key, value] of Object.entries(user)) {
+    switch (key) {
+      case 'password':
+        target[key] = await makeHash(value);
+        break;
+      default:
+        (<IAnyObject>target)[key] = value;
+    }
+  }
+
+  if (image) {
+    target.image = image.filename;
+  }
+
+  try {
+    const user = await updateUser(target);
+    return {
+      user: userResponse(user),
+    };
+  } catch (err: any) {
+    if (err.code === '23505') {
+      throw Err422UserExist;
+    }
+    throw err;
+  }
 }
