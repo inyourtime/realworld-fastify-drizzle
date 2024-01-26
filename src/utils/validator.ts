@@ -9,7 +9,6 @@ export const validate = (schema: unknown): FastifyValidationResult => {
     if (zodParsedPayload.success) return zodParsedPayload.data;
 
     const validationError = fromZodError(zodParsedPayload.error);
-
     return {
       error: validationError,
     };

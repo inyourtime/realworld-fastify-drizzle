@@ -8,21 +8,24 @@ export interface ErrorPluginOptions {
 
 // The use of fastify-plugin is required to be able
 // to export the decorators to the outer scope
-export default fp<ErrorPluginOptions>(async (fastify, opts) => {
-  fastify.addHook(
-    'onError',
-    async (
-      request: FastifyRequest,
-      reply: FastifyReply,
-      error: FastifyError,
-    ) => {
-      // fastify.log.error(error);
-      if (error instanceof Exception) return;
+export default fp<ErrorPluginOptions>(
+  async (fastify, opts) => {
+    fastify.addHook(
+      'onError',
+      async (
+        request: FastifyRequest,
+        reply: FastifyReply,
+        error: FastifyError,
+      ) => {
+        // fastify.log.error(error);
+        if (error instanceof Exception) return;
 
-      console.log(1245);
-    },
-  );
-});
+        console.log(1245);
+      },
+    );
+  },
+  { name: '@own/error-hook' },
+);
 
 // When using .decorate you have to specify added properties for Typescript
 declare module 'fastify' {}
