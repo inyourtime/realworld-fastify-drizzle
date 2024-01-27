@@ -16,7 +16,7 @@ export const generateAccessToken = (
   return sign(payload, secret, options);
 };
 
-export const verifyToken = (
+export const verifyToken = <T extends JwtPayload>(
   token: string,
   secret: string = env.ACCESS_TOKEN_SECRET,
 ) => {
@@ -26,6 +26,6 @@ export const verifyToken = (
   }));
   return res as {
     error: VerifyErrors | null;
-    result: string | JwtPayload | undefined;
+    result: T | undefined;
   };
 };

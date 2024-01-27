@@ -1,5 +1,6 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { users } from '../db/schema';
+import { JwtPayload } from 'jsonwebtoken';
 
 export type TCreateUser = InferInsertModel<typeof users>;
 export type TSelectUser = InferSelectModel<typeof users>;
@@ -23,3 +24,5 @@ export interface IUserClaims {
   userId: string;
   email: string;
 }
+
+export interface IUserClaimsDecoded extends IUserClaims, JwtPayload {}

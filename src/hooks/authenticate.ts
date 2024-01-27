@@ -1,13 +1,13 @@
-import { FastifyReply, FastifyRequest, RouteShorthandOptions } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import { verifyToken } from '../utils/token';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
-import { IAnyObject } from '../declarations/api';
 import {
   Err401MissingAuth,
   Err403TokenExpired,
   Err403TokenInvalid,
 } from '../utils/exceptions/authenticate';
+import { IUserClaimsDecoded } from '../declarations/user';
 
 type TAuth = boolean | 'OPTIONAL';
 
@@ -40,7 +40,7 @@ export default fp<AuthenticatePluginOptions>(
           throw Err401MissingAuth;
         }
 
-        const { error, result } = verifyToken(parts[1]);
+        const { error, result } = verifyToken<IUserClaimsDecoded>(parts[1]);
         if (error) {
           switch (true) {
             case error instanceof TokenExpiredError:
@@ -50,7 +50,7 @@ export default fp<AuthenticatePluginOptions>(
           }
         }
 
-        request.auth = <IAnyObject>result;
+        request.auth = result;
       },
     );
   },
@@ -64,6 +64,6 @@ declare module 'fastify' {
   }
 
   export interface FastifyRequest {
-    auth?: IAnyObject;
+    auth?: IUserClaimsDecoded;
   }
 }

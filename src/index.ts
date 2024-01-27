@@ -8,8 +8,22 @@ import { sql } from 'drizzle-orm';
   const app = await buildServer();
 
   try {
-    // await migrate(db, { migrationsFolder: './migrations' });
+    /*
+      Auto database migration for development environment
+    */
+    if (env.isDevelopment) {
+      await migrate(db, { migrationsFolder: './migrations' });
+    }
+
+    /*
+      Test database connection
+    */
     await db.execute(sql`select 1`);
+    app.log.info('Database conected ^_^');
+
+    /*
+      Server start listening
+    */
     await app.listen({ port: env.PORT, host: '0.0.0.0' });
   } catch (err) {
     app.log.error(err);
