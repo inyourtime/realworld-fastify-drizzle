@@ -1,11 +1,11 @@
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
-import { buildServer } from './utils/server';
-import { db } from './db';
+import buildServer from './utils/server';
 import env from './config/env';
 import { sql } from 'drizzle-orm';
+import { db } from './db';
 
 (async () => {
-  const app = await buildServer();
+  const fastify = await buildServer();
 
   try {
     /*
@@ -19,14 +19,14 @@ import { sql } from 'drizzle-orm';
       Test database connection
     */
     await db.execute(sql`select 1`);
-    app.log.info('Database conected ^_^');
+    fastify.log.info('Database conected ^_^');
 
     /*
       Server start listening
     */
-    await app.listen({ port: env.PORT, host: '0.0.0.0' });
+    await fastify.listen({ port: env.PORT, host: '0.0.0.0' });
   } catch (err) {
-    app.log.error(err);
+    fastify.log.error(err);
     process.exit(1);
   }
 })();

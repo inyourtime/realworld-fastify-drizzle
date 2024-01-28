@@ -1,16 +1,12 @@
 import { FastifyInstance } from 'fastify';
-import * as handler from './user.controller';
-import {
-  userCreateSchema,
-  userLoginSchema,
-  userUpdateSchema,
-} from './user.schema';
+import { userCreateSchema, userLoginSchema, userUpdateSchema } from './schema';
+import * as handler from './handler';
 
-export default async function userRoutes(app: FastifyInstance) {
+export default async function (fastify: FastifyInstance) {
   const apiModuleUsers = '/users';
   const apiModuleUser = '/user';
 
-  app.route({
+  fastify.route({
     method: 'POST',
     url: `${apiModuleUsers}`,
     config: {
@@ -22,7 +18,7 @@ export default async function userRoutes(app: FastifyInstance) {
     handler: handler.register,
   });
 
-  app.route({
+  fastify.route({
     method: 'POST',
     url: `${apiModuleUsers}/login`,
     config: {
@@ -34,7 +30,7 @@ export default async function userRoutes(app: FastifyInstance) {
     handler: handler.login,
   });
 
-  app.route({
+  fastify.route({
     method: 'GET',
     url: `${apiModuleUser}`,
     config: {
@@ -43,7 +39,7 @@ export default async function userRoutes(app: FastifyInstance) {
     handler: handler.getCurrentUser,
   });
 
-  app.route({
+  fastify.route({
     method: 'PUT',
     url: `${apiModuleUser}`,
     config: {

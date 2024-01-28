@@ -13,7 +13,7 @@
     "dz": "drizzle-kit studio",
     "test": "jest",
     "build:docker": "docker build -t fast-realw .",
-    "start:docker": "docker run --env-file ./.env -d -p 5000:5000 --name ts1234 fast-realw"
+    "start:docker": "docker run --network my_db_default --env-file ./.env -d -p 5000:5000 --name ts1234 fast-realw"
   },
   "keywords": [],
   "author": "",
