@@ -22,7 +22,7 @@ export async function register(
   this: FastifyInstance,
   request: FastifyRequest<CreateUserApi>,
   reply: FastifyReply,
-): Promise<UserResponseApi> {
+) {
   try {
     const hash = await makeHash(request.body.password);
     const user = await this.userService.create({
@@ -45,7 +45,7 @@ export async function login(
   this: FastifyInstance,
   request: FastifyRequest<LoginUserApi>,
   reply: FastifyReply,
-): Promise<UserResponseApi> {
+) {
   const { email, password } = request.body;
 
   const user = await this.userService.findByEmail(email);
@@ -63,7 +63,7 @@ export async function getCurrentUser(
   this: FastifyInstance,
   request: FastifyRequest,
   reply: FastifyReply,
-): Promise<UserResponseApi> {
+) {
   const { userId } = request.auth!;
 
   const user = await this.userService.findById(userId);
@@ -79,7 +79,7 @@ export async function updateCurrentUser(
   this: FastifyInstance,
   request: FastifyRequest<UpdateUserApi>,
   reply: FastifyReply,
-): Promise<UserResponseApi> {
+) {
   const { userId } = request.auth!;
   const { user, image } = request.body;
 

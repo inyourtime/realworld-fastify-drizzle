@@ -19,7 +19,7 @@ import { db } from './db';
       Test database connection
     */
     await db.execute(sql`select 1`);
-    fastify.log.info('Database conected ^_^');
+    fastify.log.info('Database connected ^_^');
 
     /*
       Server start listening

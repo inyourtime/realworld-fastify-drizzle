@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
 
-export default async function articleRoutes(app: FastifyInstance) {
+export default async function (app: FastifyInstance) {
   const apiModule = '/article';
 }
