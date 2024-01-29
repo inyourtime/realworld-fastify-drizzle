@@ -13,14 +13,15 @@ import userRoutes from '../modules/user';
 import fp from 'fastify-plugin';
 import userService from '../modules/user/service';
 import profileService from '../modules/profile/service';
+import articleService from '../modules/article/service';
 
 const API_PREFIX = 'api';
 
 async function decorateFastifyInstance(fastify: FastifyInstance) {
-  // user service
+  // service
   fastify.register(userService);
-
   fastify.register(profileService);
+  fastify.register(articleService);
 }
 
 async function buildServer() {

@@ -9,7 +9,7 @@ import {
   TUserFollower,
 } from '../../declarations/user';
 
-class ProfileService {
+export class ProfileService {
   constructor() {}
 
   async get(username: string): Promise<IUserWithFollower | undefined> {
