@@ -1,9 +1,15 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
-import { users } from '../db/schema';
+import { userFollower, users } from '../db/schema';
 import { JwtPayload } from 'jsonwebtoken';
 
 export type TCreateUser = InferInsertModel<typeof users>;
 export type TSelectUser = InferSelectModel<typeof users>;
+
+export type TUserFollower = InferSelectModel<typeof userFollower>;
+
+export interface IUserWithFollower extends TSelectUser {
+  followers: TUserFollower[];
+}
 
 export type TUserLogin = Pick<TSelectUser, 'email' | 'password'>;
 
@@ -26,3 +32,12 @@ export interface IUserClaims {
 }
 
 export interface IUserClaimsDecoded extends IUserClaims, JwtPayload {}
+
+export type TBaseProfileResponse = Pick<
+  TSelectUser,
+  'username' | 'bio' | 'image'
+>;
+
+export interface IProfileResponse extends TBaseProfileResponse {
+  following: boolean;
+}

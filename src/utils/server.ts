@@ -12,12 +12,15 @@ import bodyparserHook from '../hooks/bodyparser';
 import userRoutes from '../modules/user';
 import fp from 'fastify-plugin';
 import userService from '../modules/user/service';
+import profileService from '../modules/profile/service';
 
 const API_PREFIX = 'api';
 
 async function decorateFastifyInstance(fastify: FastifyInstance) {
   // user service
   fastify.register(userService);
+
+  fastify.register(profileService);
 }
 
 async function buildServer() {
