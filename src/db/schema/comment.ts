@@ -1,14 +1,14 @@
 import { relations } from 'drizzle-orm';
-import { uuid, pgTable, text } from 'drizzle-orm/pg-core';
+import { uuid, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { articles, users } from '.';
-import { baseTimestamp } from '..';
 
 export const comments = pgTable('comments', {
   id: uuid('id').primaryKey().defaultRandom().notNull(),
   body: text('body').notNull(),
   authorId: uuid('author_id').notNull(),
   articleId: uuid('article_id').notNull(),
-  ...baseTimestamp,
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 export const commentsRelation = relations(comments, ({ one }) => ({

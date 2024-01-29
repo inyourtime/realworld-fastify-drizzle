@@ -35,7 +35,7 @@ export class UserService {
   async update(data: TSelectUser) {
     return db
       .update(users)
-      .set({ ...data })
+      .set({ ...data, updatedAt: new Date() })
       .where(eq(users.id, data.id))
       .returning()
       .then(([user]) => user);

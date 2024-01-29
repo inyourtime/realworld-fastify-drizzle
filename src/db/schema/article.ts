@@ -1,7 +1,13 @@
 import { relations } from 'drizzle-orm';
-import { uuid, pgTable, varchar, text, uniqueIndex } from 'drizzle-orm/pg-core';
+import {
+  uuid,
+  pgTable,
+  varchar,
+  text,
+  uniqueIndex,
+  timestamp,
+} from 'drizzle-orm/pg-core';
 import { comments, users } from '.';
-import { baseTimestamp } from '..';
 
 export const articles = pgTable('articles', {
   id: uuid('id').primaryKey().defaultRandom().notNull(),
@@ -11,7 +17,8 @@ export const articles = pgTable('articles', {
   body: text('body').notNull(),
   tagList: varchar('tag_list', { length: 256 }).array(),
   authorId: uuid('author_id').notNull(),
-  ...baseTimestamp,
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 export const articlesRelation = relations(articles, ({ one, many }) => ({

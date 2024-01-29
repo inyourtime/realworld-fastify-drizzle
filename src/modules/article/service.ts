@@ -7,10 +7,9 @@ import {
   TCreateArticle,
 } from '../../declarations/article';
 import { db } from '../../db';
-import { articles, users } from '../../db/schema';
+import { articles } from '../../db/schema';
 import { eq } from 'drizzle-orm';
 import { ProfileService } from '../profile/service';
-import { TArticleUpdateSchema } from './schema';
 
 export class ArticleService {
   constructor() {}
@@ -60,7 +59,7 @@ export class ArticleService {
   async update(data: IArticleUpdate) {
     return db
       .update(articles)
-      .set({ ...data })
+      .set({ ...data, updatedAt: new Date() })
       .where(eq(articles.id, data.id))
       .then(() => this.get(data.id));
   }

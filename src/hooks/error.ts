@@ -19,6 +19,7 @@ export default fp<ErrorPluginOptions>(
       ) => {
         if (error instanceof Exception) return;
         console.log('from error hook');
+        fastify.log.error(error);
       },
     );
   },
