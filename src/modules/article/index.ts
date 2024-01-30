@@ -53,4 +53,31 @@ export default async function (fastify: FastifyInstance) {
     },
     handler: handler.updateArticle,
   });
+
+  fastify.route({
+    method: 'DELETE',
+    url: `${apiModule}/:slug`,
+    config: {
+      auth: true,
+    },
+    handler: handler.deleteArticle,
+  });
+
+  fastify.route({
+    method: 'POST',
+    url: `${apiModule}/:slug/favorite`,
+    config: {
+      auth: true,
+    },
+    handler: handler.favoriteArticle,
+  });
+
+  fastify.route({
+    method: 'DELETE',
+    url: `${apiModule}/:slug/favorite`,
+    config: {
+      auth: true,
+    },
+    handler: handler.unFavoriteArticle,
+  });
 }

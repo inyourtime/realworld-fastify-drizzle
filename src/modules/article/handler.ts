@@ -1,12 +1,11 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { ApiRequest, IAnyObject } from '../../declarations/api';
+import { ApiRequest } from '../../declarations/api';
 import { Err404UserNotFound } from '../../utils/exceptions/user';
 import {
   TArticleCreateSchema,
   TArticleUpdateSchema,
   TArticlesListQuery,
 } from './schema';
-import slugify from 'slugify';
 import {
   Err403ArticleForbidden,
   Err404ArticleNotFound,
@@ -36,7 +35,7 @@ export async function createArticle(
   try {
     const newArticle = await this.articleService.create({
       ...article,
-      slug: slugify(article.title, { lower: true, replacement: '-' }),
+      slug: this.slug(article.title),
       authorId: author.id,
     });
     if (!newArticle) throw Err404ArticleNotFound;
@@ -89,9 +88,7 @@ export async function updateArticle(
 
   const update: IArticleUpdate = {
     id: targetArc.id,
-    slug: article.title
-      ? slugify(article.title, { lower: true, replacement: '-' })
-      : undefined,
+    slug: article.title ? this.slug(article.title) : undefined,
     ...article,
   };
 
@@ -108,4 +105,85 @@ export async function updateArticle(
     }
     throw err;
   }
+}
+
+type ArticleDeleteApi = ApiRequest<{ Params: { slug: string } }>;
+export async function deleteArticle(
+  this: FastifyInstance,
+  request: FastifyRequest<ArticleDeleteApi>,
+  reply: FastifyReply,
+) {
+  const loginUser = await this.userService.findById(request.auth!.userId);
+  if (!loginUser) throw Err404UserNotFound;
+
+  const targetArc = await this.articleService.findBySlug(request.params.slug);
+  if (!targetArc) throw Err404ArticleNotFound;
+
+  if (targetArc.author.id !== loginUser.id) {
+    throw Err403ArticleForbidden;
+  }
+
+  await this.articleService.delete(targetArc.id);
+
+  return {
+    message: 'Article successfully deleted!!!',
+  };
+}
+
+type ArticleFavoriteApi = ApiRequest<{ Params: { slug: string } }>;
+export async function favoriteArticle(
+  this: FastifyInstance,
+  request: FastifyRequest<ArticleFavoriteApi>,
+  reply: FastifyReply,
+) {
+  const loginUser = await this.userService.findById(request.auth!.userId);
+  if (!loginUser) throw Err404UserNotFound;
+
+  const targetArc = await this.articleService.findBySlug(request.params.slug);
+  if (!targetArc) throw Err404ArticleNotFound;
+
+  let response = {
+    article: this.articleService.response(targetArc, loginUser.id),
+  };
+
+  try {
+    await this.articleService.favorite(targetArc.id, loginUser.id);
+    response.article.favorited = true;
+    response.article.favoritesCount += 1;
+    return response;
+  } catch (err: any) {
+    if (err.code === '23505') {
+      return response;
+    }
+    throw err;
+  }
+}
+
+type ArticleUnFavoriteApi = ApiRequest<{ Params: { slug: string } }>;
+export async function unFavoriteArticle(
+  this: FastifyInstance,
+  request: FastifyRequest<ArticleUnFavoriteApi>,
+  reply: FastifyReply,
+) {
+  const loginUser = await this.userService.findById(request.auth!.userId);
+  if (!loginUser) throw Err404UserNotFound;
+
+  const targetArc = await this.articleService.findBySlug(request.params.slug);
+  if (!targetArc) throw Err404ArticleNotFound;
+
+  let response = {
+    article: this.articleService.response(targetArc, loginUser.id),
+  };
+
+  const result = await this.articleService.unFavorite(
+    targetArc.id,
+    loginUser.id,
+  );
+  if (result.rowCount && result.rowCount > 0) {
+    response.article.favorited = false;
+    response.article.favoritesCount -= 1;
+    return response;
+  }
+
+  return response;
 }

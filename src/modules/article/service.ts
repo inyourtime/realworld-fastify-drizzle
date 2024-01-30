@@ -5,10 +5,11 @@ import {
   IArticleUpdate,
   IArticleWithAuthor,
   TCreateArticle,
+  TFavouritedUser,
 } from '../../declarations/article';
 import { db } from '../../db';
-import { articles } from '../../db/schema';
-import { eq } from 'drizzle-orm';
+import { articleUserFavourites, articles } from '../../db/schema';
+import { and, eq } from 'drizzle-orm';
 import { ProfileService } from '../profile/service';
 
 export class ArticleService {
@@ -28,6 +29,7 @@ export class ArticleService {
     return db.query.articles.findFirst({
       where: eq(articles.id, id),
       with: {
+        favouritedUsers: true,
         author: {
           with: {
             followers: true,
@@ -44,6 +46,7 @@ export class ArticleService {
     return db.query.articles.findFirst({
       where: eq(articles.slug, slug),
       with: {
+        favouritedUsers: true,
         author: {
           with: {
             followers: true,
@@ -56,12 +59,37 @@ export class ArticleService {
     });
   }
 
-  async update(data: IArticleUpdate) {
+  async update(data: IArticleUpdate): Promise<IArticleWithAuthor | undefined> {
     return db
       .update(articles)
       .set({ ...data, updatedAt: new Date() })
       .where(eq(articles.id, data.id))
       .then(() => this.get(data.id));
+  }
+
+  async delete(id: string): Promise<void> {
+    await db.delete(articles).where(eq(articles.id, id));
+  }
+
+  async favorite(articleId: string, userId: string): Promise<void> {
+    await db.insert(articleUserFavourites).values({ articleId, userId });
+  }
+
+  async unFavorite(articleId: string, userId: string) {
+    return db
+      .delete(articleUserFavourites)
+      .where(
+        and(
+          eq(articleUserFavourites.articleId, articleId),
+          eq(articleUserFavourites.userId, userId),
+        ),
+      );
+  }
+
+  isFavorite(favorites: TFavouritedUser[], userId: string): boolean {
+    return favorites.filter((ele) => ele.userId === userId).length === 0
+      ? false
+      : true;
   }
 
   response(article: IArticleWithAuthor, userId?: string): IArticleResponse {
@@ -73,8 +101,10 @@ export class ArticleService {
       tagList: article.tagList,
       createdAt: article.createdAt,
       updatedAt: article.updatedAt,
-      favorited: false,
-      favoritesCount: 0,
+      favorited: userId
+        ? this.isFavorite(article.favouritedUsers, userId)
+        : false,
+      favoritesCount: article.favouritedUsers.length,
       author: new ProfileService().response(article.author, userId),
     };
   }

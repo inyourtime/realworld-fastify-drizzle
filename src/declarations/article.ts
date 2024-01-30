@@ -1,14 +1,16 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
-import { articles } from '../db/schema';
+import { articleUserFavourites, articles } from '../db/schema';
 import { IProfileResponse, IUserWithFollower } from './user';
 import { TArticleUpdateSchema } from '../modules/article/schema';
 
 export type TCreateArticle = InferInsertModel<typeof articles>;
 export type TSelectArticle = InferSelectModel<typeof articles>;
+export type TFavouritedUser = InferSelectModel<typeof articleUserFavourites>;
 
 export type TCustomSelectArticle = Omit<TSelectArticle, 'authorId'>;
 export interface IArticleWithAuthor extends TCustomSelectArticle {
   author: IUserWithFollower;
+  favouritedUsers: TFavouritedUser[];
 }
 
 export type TBaseArticleResponse = Pick<

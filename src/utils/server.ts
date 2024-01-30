@@ -14,11 +14,17 @@ import fp from 'fastify-plugin';
 import userService from '../modules/user/service';
 import profileService from '../modules/profile/service';
 import articleService from '../modules/article/service';
+import { slug } from './slug';
+import { checkHash, makeHash } from './hash';
 
 const API_PREFIX = 'api';
 
 async function decorateFastifyInstance(fastify: FastifyInstance) {
   // service
+  fastify.decorate('makeHash', makeHash);
+  fastify.decorate('checkHash', checkHash);
+  fastify.decorate('slug', slug);
+
   fastify.register(userService);
   fastify.register(profileService);
   fastify.register(articleService);

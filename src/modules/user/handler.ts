@@ -6,7 +6,6 @@ import {
   TUserLoginSchema,
   TUserUpdateSchema,
 } from './schema';
-import { checkHash, makeHash } from '../../utils/hash';
 import {
   Err401LoginFail,
   Err404UserNotFound,
@@ -24,7 +23,7 @@ export async function register(
   reply: FastifyReply,
 ) {
   try {
-    const hash = await makeHash(request.body.password);
+    const hash = await this.makeHash(request.body.password);
     const user = await this.userService.create({
       ...request.body,
       password: hash,
@@ -51,7 +50,7 @@ export async function login(
   const user = await this.userService.findByEmail(email);
   if (!user) throw Err401LoginFail;
 
-  const match = await checkHash(password, user.password);
+  const match = await this.checkHash(password, user.password);
   if (!match) throw Err401LoginFail;
 
   return {
@@ -89,7 +88,7 @@ export async function updateCurrentUser(
   for (const [key, value] of Object.entries(user)) {
     switch (key) {
       case 'password':
-        target[key] = await makeHash(value);
+        target[key] = await this.makeHash(value);
         break;
       default:
         (<IAnyObject>target)[key] = value;
