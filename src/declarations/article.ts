@@ -38,3 +38,16 @@ export interface IArticleUpdate {
   body?: string | undefined;
   tagList?: string[] | undefined;
 }
+
+export interface IArticleFilter {
+  tag?: string;
+  authorId?: string;
+  userId?: string;
+}
+
+export interface IBaseArticleQuery {
+  limit: number;
+  offset: number;
+}
+
+export interface IArticleQuery extends IArticleFilter, IBaseArticleQuery {}

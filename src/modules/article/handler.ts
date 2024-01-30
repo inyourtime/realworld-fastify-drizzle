@@ -11,7 +11,7 @@ import {
   Err404ArticleNotFound,
   Err422ArticleExist,
 } from '../../utils/exceptions/article';
-import { IArticleUpdate } from '../../declarations/article';
+import { IArticleQuery, IArticleUpdate } from '../../declarations/article';
 
 type ArticleListApi = ApiRequest<{ Querystring: TArticlesListQuery }>;
 export async function listArticles(
@@ -20,6 +20,27 @@ export async function listArticles(
   reply: FastifyReply,
 ) {
   const { limit, offset, tag, author, favorited } = request.query;
+
+  let query: IArticleQuery = { limit, offset, tag };
+
+  if (author) {
+    const selectedAuthor = await this.profileService.get(author);
+    if (selectedAuthor) query.authorId = selectedAuthor.id;
+  }
+  if (favorited) {
+    const favoriter = await this.profileService.get(favorited);
+    if (favoriter) query.userId = favoriter.id;
+  }
+
+  const [result, count] = await this.articleService.list(query);
+  const mapResult = result.map((ele) =>
+    this.articleService.response(ele, request.auth?.userId),
+  );
+
+  return {
+    articles: mapResult,
+    articlesCount: count[0].value,
+  };
 }
 
 type ArticleCreateApi = ApiRequest<{ Body: TArticleCreateSchema }>;

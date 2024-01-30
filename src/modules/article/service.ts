@@ -1,6 +1,8 @@
 import { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 import {
+  IArticleFilter,
+  IArticleQuery,
   IArticleResponse,
   IArticleUpdate,
   IArticleWithAuthor,
@@ -9,11 +11,56 @@ import {
 } from '../../declarations/article';
 import { db } from '../../db';
 import { articleUserFavourites, articles } from '../../db/schema';
-import { and, eq } from 'drizzle-orm';
+import { SQL, and, arrayContains, count, desc, eq, inArray } from 'drizzle-orm';
 import { ProfileService } from '../profile/service';
 
 export class ArticleService {
   constructor() {}
+
+  async list({ limit, offset, ...filter }: IArticleQuery) {
+    const qb = await this.qbList(filter);
+    const list = db.query.articles.findMany({
+      where: and(...qb),
+      orderBy: [desc(articles.createdAt)],
+      limit,
+      offset,
+      with: {
+        favouritedUsers: true,
+        author: {
+          with: {
+            followers: true,
+          },
+        },
+      },
+    });
+
+    const queryCount = db
+      .select({ value: count() })
+      .from(articles)
+      .where(and(...qb));
+
+    return Promise.all([list, queryCount]);
+  }
+
+  private async qbList({ tag, authorId, userId }: IArticleFilter) {
+    const qb: SQL<unknown>[] = [];
+    if (tag) {
+      qb.push(arrayContains(articles.tagList, [tag]));
+    }
+    if (authorId) {
+      qb.push(eq(articles.authorId, authorId));
+    }
+    if (userId) {
+      const arcIdArr = (
+        await db
+          .select({ articleId: articleUserFavourites.articleId })
+          .from(articleUserFavourites)
+          .where(eq(articleUserFavourites.userId, userId))
+      ).reduce((acc: string[], curr) => acc.concat(curr.articleId), []);
+      if (arcIdArr.length > 0) qb.push(inArray(articles.id, arcIdArr));
+    }
+    return qb;
+  }
 
   async create(data: TCreateArticle): Promise<IArticleWithAuthor | undefined> {
     return db
