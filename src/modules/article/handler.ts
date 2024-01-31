@@ -5,13 +5,18 @@ import {
   TArticleCreateSchema,
   TArticleUpdateSchema,
   TArticlesListQuery,
+  TBaseArticleQuery,
 } from './schema';
 import {
   Err403ArticleForbidden,
   Err404ArticleNotFound,
   Err422ArticleExist,
 } from '../../utils/exceptions/article';
-import { IArticleQuery, IArticleUpdate } from '../../declarations/article';
+import {
+  IArticleFeedQuery,
+  IArticleQuery,
+  IArticleUpdate,
+} from '../../declarations/article';
 
 type ArticleListApi = ApiRequest<{ Querystring: TArticlesListQuery }>;
 export async function listArticles(
@@ -37,6 +42,36 @@ export async function listArticles(
   }
 
   const [result, count] = await this.articleService.listAndCount(query);
+  const mapResult = result.map((ele) =>
+    this.articleService.response(ele, request.auth?.userId),
+  );
+
+  return this.paginator(mapResult, count, query.limit, query.page);
+}
+
+type ArticleFeedApi = ApiRequest<{ Querystring: TBaseArticleQuery }>;
+export async function feedArticles(
+  this: FastifyInstance,
+  request: FastifyRequest<ArticleFeedApi>,
+  reply: FastifyReply,
+) {
+  const { limit, page } = request.query;
+
+  const loginUser = await this.userService.feed(request.auth!.userId);
+  if (!loginUser) throw Err404UserNotFound;
+
+  const followingArr = loginUser.following.reduce(
+    (arr: string[], curr) => arr.concat(curr.followingId),
+    [],
+  );
+
+  let query: IArticleFeedQuery = {
+    limit: Number(limit) || 20,
+    page: Number(page) || 1,
+    following: followingArr,
+  };
+
+  const [result, count] = await this.articleService.feed(query);
   const mapResult = result.map((ele) =>
     this.articleService.response(ele, request.auth?.userId),
   );

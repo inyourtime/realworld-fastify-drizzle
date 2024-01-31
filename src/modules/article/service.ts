@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 import {
+  IArticleFeedQuery,
   IArticleFilter,
   IArticleQuery,
   IArticleResponse,
@@ -18,9 +19,9 @@ export class ArticleService {
   constructor() {}
 
   async listAndCount({ limit, page, ...filter }: IArticleQuery) {
-    const qb = await this.qbList(filter);
+    const qb = and(...(await this.qbList(filter)));
     const list = db.query.articles.findMany({
-      where: and(...qb),
+      where: qb,
       orderBy: [desc(articles.createdAt)],
       limit,
       offset: (page - 1) * limit,
@@ -37,11 +38,34 @@ export class ArticleService {
     return Promise.all([list, this.count(qb)]);
   }
 
-  private async count(qb: SQL<unknown>[]): Promise<number> {
+  async feed({ limit, page, following }: IArticleFeedQuery) {
+    if (following.length < 1) {
+      return Promise.all([Promise.resolve([]), Promise.resolve(0)]);
+    }
+    const query = inArray(articles.authorId, following);
+    const list = db.query.articles.findMany({
+      where: query,
+      orderBy: [desc(articles.createdAt)],
+      limit,
+      offset: (page - 1) * limit,
+      with: {
+        favouritedUsers: true,
+        author: {
+          with: {
+            followers: true,
+          },
+        },
+      },
+    });
+
+    return Promise.all([list, this.count(query)]);
+  }
+
+  private async count(qb: SQL<unknown> | undefined): Promise<number> {
     return db
       .select({ value: count() })
       .from(articles)
-      .where(and(...qb))
+      .where(qb)
       .then((result) => result[0].value);
   }
 

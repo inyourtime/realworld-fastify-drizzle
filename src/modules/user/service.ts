@@ -28,6 +28,13 @@ export class UserService {
     });
   }
 
+  async feed(id: string) {
+    return db.query.users.findFirst({
+      where: eq(users.id, id),
+      with: { following: true },
+    });
+  }
+
   async findById(id: string) {
     return db.query.users.findFirst({ where: eq(users.id, id) });
   }

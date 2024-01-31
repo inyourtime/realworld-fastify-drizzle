@@ -4,6 +4,7 @@ import {
   articleCreateSchema,
   articleListQuery,
   articleUpdateSchema,
+  baseArticleQuery,
 } from './schema';
 
 export default async function (fastify: FastifyInstance) {
@@ -19,6 +20,18 @@ export default async function (fastify: FastifyInstance) {
       querystring: articleListQuery,
     },
     handler: handler.listArticles,
+  });
+
+  fastify.route({
+    method: 'GET',
+    url: `${apiModule}/feed`,
+    config: {
+      auth: true,
+    },
+    schema: {
+      querystring: baseArticleQuery,
+    },
+    handler: handler.feedArticles,
   });
 
   fastify.route({

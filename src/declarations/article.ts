@@ -50,3 +50,7 @@ export interface IBaseArticleQuery {
 }
 
 export interface IArticleQuery extends IArticleFilter, IBaseArticleQuery {}
+
+export interface IArticleFeedQuery extends IBaseArticleQuery {
+  following: string[];
+}
