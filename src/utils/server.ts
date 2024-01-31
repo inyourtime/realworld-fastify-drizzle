@@ -8,12 +8,14 @@ import errorHook from '../hooks/error';
 import authenticateHook from '../hooks/authenticate';
 import profileRoutes from '../modules/profile';
 import articleRoutes from '../modules/article';
+import commentRoutes from '../modules/comment';
 import bodyparserHook from '../hooks/bodyparser';
 import userRoutes from '../modules/user';
 import fp from 'fastify-plugin';
 import userService from '../modules/user/service';
 import profileService from '../modules/profile/service';
 import articleService from '../modules/article/service';
+import commentService from '../modules/comment/service';
 import { slug } from './slug';
 import { checkHash, makeHash } from './hash';
 import { paginator } from '../plugins/paginator';
@@ -30,6 +32,7 @@ async function decorateFastifyInstance(fastify: FastifyInstance) {
   fastify.register(userService);
   fastify.register(profileService);
   fastify.register(articleService);
+  fastify.register(commentService);
 }
 
 async function buildServer() {
@@ -79,7 +82,8 @@ async function buildServer() {
   fastify
     .register(userRoutes, _options)
     .register(profileRoutes, _options)
-    .register(articleRoutes, _options);
+    .register(articleRoutes, _options)
+    .register(commentRoutes, _options);
 
   return fastify;
 }

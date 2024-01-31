@@ -15,3 +15,13 @@ export const Err403ArticleForbidden = Exception.new(
   'No permission in this Article',
   STATUS_CODE.FORBIDDEN,
 );
+
+export const Err404CommentNotFound = Exception.new(
+  'Comment Not Found',
+  STATUS_CODE.NOT_FOUND,
+);
+
+export const Err403CommentForbidden = Exception.new(
+  'No permission in this Comment',
+  STATUS_CODE.FORBIDDEN,
+);
