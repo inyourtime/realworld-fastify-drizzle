@@ -17,13 +17,13 @@ import { ProfileService } from '../profile/service';
 export class ArticleService {
   constructor() {}
 
-  async list({ limit, offset, ...filter }: IArticleQuery) {
+  async listAndCount({ limit, page, ...filter }: IArticleQuery) {
     const qb = await this.qbList(filter);
     const list = db.query.articles.findMany({
       where: and(...qb),
       orderBy: [desc(articles.createdAt)],
       limit,
-      offset,
+      offset: (page - 1) * limit,
       with: {
         favouritedUsers: true,
         author: {
@@ -34,12 +34,15 @@ export class ArticleService {
       },
     });
 
-    const queryCount = db
+    return Promise.all([list, this.count(qb)]);
+  }
+
+  private async count(qb: SQL<unknown>[]): Promise<number> {
+    return db
       .select({ value: count() })
       .from(articles)
-      .where(and(...qb));
-
-    return Promise.all([list, queryCount]);
+      .where(and(...qb))
+      .then((result) => result[0].value);
   }
 
   private async qbList({ tag, authorId, userId }: IArticleFilter) {

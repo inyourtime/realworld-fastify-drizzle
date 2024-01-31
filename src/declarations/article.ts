@@ -1,7 +1,6 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { articleUserFavourites, articles } from '../db/schema';
 import { IProfileResponse, IUserWithFollower } from './user';
-import { TArticleUpdateSchema } from '../modules/article/schema';
 
 export type TCreateArticle = InferInsertModel<typeof articles>;
 export type TSelectArticle = InferSelectModel<typeof articles>;
@@ -47,7 +46,7 @@ export interface IArticleFilter {
 
 export interface IBaseArticleQuery {
   limit: number;
-  offset: number;
+  page: number;
 }
 
 export interface IArticleQuery extends IArticleFilter, IBaseArticleQuery {}

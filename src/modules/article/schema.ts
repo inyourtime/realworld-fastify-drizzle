@@ -1,20 +1,8 @@
 import z from 'zod';
 
 export const baseArticleQuery = z.object({
-  limit: z
-    .string()
-    .refine((value) => /^\d+$/.test(value), {
-      message: 'Limit must be a non-negative integer as a string.',
-    })
-    .transform((value) => Number(value))
-    .default('20'),
-  offset: z
-    .string()
-    .refine((value) => /^\d+$/.test(value), {
-      message: 'Offset must be a non-negative integer as a string.',
-    })
-    .transform((value) => Number(value))
-    .default('0'),
+  limit: z.string().optional(),
+  page: z.string().optional(),
 });
 export type TBaseArticleQuery = z.infer<typeof baseArticleQuery>;
 

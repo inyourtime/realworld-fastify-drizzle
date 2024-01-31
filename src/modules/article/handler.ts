@@ -19,9 +19,13 @@ export async function listArticles(
   request: FastifyRequest<ArticleListApi>,
   reply: FastifyReply,
 ) {
-  const { limit, offset, tag, author, favorited } = request.query;
+  const { limit, page, tag, author, favorited } = request.query;
 
-  let query: IArticleQuery = { limit, offset, tag };
+  let query: IArticleQuery = {
+    limit: Number(limit) || 20,
+    page: Number(page) || 1,
+    tag,
+  };
 
   if (author) {
     const selectedAuthor = await this.profileService.get(author);
@@ -32,15 +36,12 @@ export async function listArticles(
     if (favoriter) query.userId = favoriter.id;
   }
 
-  const [result, count] = await this.articleService.list(query);
+  const [result, count] = await this.articleService.listAndCount(query);
   const mapResult = result.map((ele) =>
     this.articleService.response(ele, request.auth?.userId),
   );
 
-  return {
-    articles: mapResult,
-    articlesCount: count[0].value,
-  };
+  return this.paginator(mapResult, count, query.limit, query.page);
 }
 
 type ArticleCreateApi = ApiRequest<{ Body: TArticleCreateSchema }>;
