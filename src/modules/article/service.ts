@@ -12,7 +12,16 @@ import {
 } from '../../declarations/article';
 import { db } from '../../db';
 import { articleUserFavourites, articles } from '../../db/schema';
-import { SQL, and, arrayContains, count, desc, eq, inArray } from 'drizzle-orm';
+import {
+  SQL,
+  and,
+  arrayContains,
+  count,
+  desc,
+  eq,
+  inArray,
+  sql,
+} from 'drizzle-orm';
 import { ProfileService } from '../profile/service';
 
 export class ArticleService {
@@ -157,6 +166,16 @@ export class ArticleService {
           eq(articleUserFavourites.articleId, articleId),
           eq(articleUserFavourites.userId, userId),
         ),
+      );
+  }
+
+  async tags() {
+    return db
+      .execute(
+        sql`select distinct unnest(tag_list) as distinct_tag from articles`,
+      )
+      .then((rs) =>
+        rs.rows.reduce((acc, curr: any) => acc.concat(curr.distinct_tag), []),
       );
   }
 
